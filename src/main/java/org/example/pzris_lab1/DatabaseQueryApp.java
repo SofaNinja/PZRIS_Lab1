@@ -63,19 +63,25 @@ public class DatabaseQueryApp extends Application {
             long start = System.nanoTime();
 
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(query);
+            boolean hasResultSet = stmt.execute(query);
 
             long end = System.nanoTime();
             long durationMs = (end - start) / 1_000_000;
             executionTimeLabel.setText("Час виконання: " + durationMs + " мс");
 
-            populateTableView(rs);
+            if (hasResultSet) {
+                ResultSet rs = stmt.getResultSet();
+                populateTableView(rs);
+            } else {
+                showAlert("Запит не повернув результатів (наприклад, INSERT, UPDATE, DELETE).");
+            }
 
         } catch (Exception ex) {
             showAlert("Помилка: " + ex.getMessage());
             ex.printStackTrace();
         }
     }
+
 
     private Connection getConnection(String type) throws SQLException {
         if ("JDBC".equalsIgnoreCase(type)) {
